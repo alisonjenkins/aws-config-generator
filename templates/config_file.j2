@@ -1,0 +1,14 @@
+[default]
+region={{default_region}}
+output={{default_output_format}}
+
+{% for account_profile in account_profiles %}
+
+[profile {{account_profile.name}}]
+output = {{default_output_format}}
+region = {{default_region}}
+sso_account_id = {{account.id}}
+sso_region = {{sso_region}}
+sso_role_name = {{sso_role}}
+sso_start_url = {{sso_url}}
+{% endfor %}
