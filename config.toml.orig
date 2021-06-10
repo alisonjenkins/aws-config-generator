@@ -1,0 +1,12 @@
+[master-account]
+accountid = '325708315621'
+accountname = 'syn-master'
+
+[sso_options]
+sso_url = 'https://synalogik-sso.awsapps.com/start'
+sso_region = 'eu-west-2'
+sso_role = 'AdministratorAccess'
+
+[aws_cli_options]
+default_region = "eu-west-2"
+default_output_type = 'json'
