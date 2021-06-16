@@ -10,3 +10,6 @@ sso_role = 'AdministratorAccess'
 [aws_cli_options]
 default_region = "eu-west-2"
 default_output_type = 'json'
+
+[aws_account_name_overrides]
+

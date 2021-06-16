@@ -8,8 +8,11 @@ use std::process;
 use rusoto_core::Region;
 use rusoto_organizations::{Account, Organizations, OrganizationsClient, ListAccountsRequest};
 
-async fn generate_aws_config(default_region: &str, default_output_type: &str, sso_start_url: &str, sso_region: &str, sso_role_name: &str, accounts_list: &Vec<Account>) -> io::Result<String> {
-    let mut config_string: String = format!("[default] \nregion={}\noutput={}\n\n", &default_region, &default_output_type);
+async fn generate_aws_config(config: &toml::Value, accounts_list: &Vec<Account>) -> io::Result<String> {
+    let mut config_string: String = format!("[default] \nregion={}\noutput={}\n\n",
+        config["aws_cli_options"]["default_region"].as_str().unwrap(),
+        config["aws_cli_options"]["default_output_type"].as_str().unwrap()
+    );
 
     for account in accounts_list {
         let mut account_name: String;
@@ -18,13 +21,42 @@ async fn generate_aws_config(default_region: &str, default_output_type: &str, ss
         match &account.name {
             Some(name) => {
                 account_name = name.clone();
-                account_name = account_name.replace(" ", "-").to_lowercase();
             }
             None => {
                 eprintln!("No account Name!");
                 std::process::exit(1);
             }
         }
+
+        println!("Checking for account name override");
+        let account_overrides: &toml::value::Table;
+        if config["aws_account_name_overrides"].is_table() {
+            account_overrides = match config["aws_account_name_overrides"].as_table() {
+                Some(overrides) => Box::new(overrides.to_owned()),
+                None => &toml::map::Map::new(),
+            }
+        }
+        if account_overrides.contains_key(&account_name) {
+            match &config["aws_account_name_overrides"].get(&account_name) {
+                Some(name_override) => {
+                    let name_override_string = match name_override.as_str() {
+                        Some(name_override_str) => {
+                            println!("Attempting to convert name override to string");
+                            name_override_str.to_string()
+                        },
+                        None => {
+                            println!("Unable to get account name override value");
+                            std::process::exit(1);
+                        }
+                    };
+                    println!("Overriding AWS account alias {} to {}", &account_name, name_override_string);
+                    account_name = name_override_string;
+                },
+                None => {
+                    println!("No AWS account alias override for {}", &account_name);
+                },
+            }
+        };
 
         match &account.id {
             Some(id) => account_id = &id.borrow(),
@@ -37,12 +69,12 @@ async fn generate_aws_config(default_region: &str, default_output_type: &str, ss
         config_string = config_string + &format!(
             "[profile {}]\nsso_start_url = {}\nsso_region = {}\nregion = {}\noutput = {}\nsso_account_id = {}\nsso_role_name = {}\n\n",
             &account_name,
-            &sso_start_url,
-            &sso_region,
-            &default_region,
-            &default_output_type,
+            config["sso_options"]["sso_url"].as_str().unwrap(),
+            config["sso_options"]["sso_region"].as_str().unwrap(),
+            config["aws_cli_options"]["default_region"].as_str().unwrap(),
+            config["aws_cli_options"]["default_output_type"].as_str().unwrap(),
             &account_id,
-            &sso_role_name
+            config["sso_options"]["sso_role"].as_str().unwrap()
         );
     }
 
@@ -132,11 +164,7 @@ async fn main() -> () {
             match output.accounts {
                 Some(accounts_list) => {
                     let config_string = generate_aws_config(
-                        config["aws_cli_options"]["default_region"].as_str().unwrap(),
-                        config["aws_cli_options"]["default_output_type"].as_str().unwrap(),
-                        config["sso_options"]["sso_url"].as_str().unwrap(),
-                        config["sso_options"]["sso_region"].as_str().unwrap(),
-                        config["sso_options"]["sso_role"].as_str().unwrap(),
+                        &config,
                         &accounts_list,
                     ).await;
                     println!("{}", config_string.unwrap());
