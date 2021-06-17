@@ -76,4 +76,4 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: target/release/aws-config-generator
           asset_name: aws-config-generator-linux-arm64
-tag: build-${{ github.ref }}
+          tag: build-${{ github.ref }}
