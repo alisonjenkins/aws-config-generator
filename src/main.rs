@@ -8,6 +8,7 @@ mod configgen;
 
 #[tokio::main]
 async fn main() -> () {
+    let args = configgen::arg_parsing::get_args().await;
     let config = configgen::config::get_config();
 
     println!("{:?}", config);
