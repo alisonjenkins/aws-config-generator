@@ -37,6 +37,7 @@ jobs:
         run: cargo build --all --release
 
       - name: Archive Release
+        runs-on: ubuntu-latest
         uses: thedoctor0/zip-release@0.4.2
         with:
           filename: 'aws-config-generator-mac-x86_64.zip'
