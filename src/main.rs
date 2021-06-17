@@ -28,6 +28,7 @@ async fn main() -> () {
     };
 
     match org_client.list_accounts(list_accounts_input).await {
+
         Ok(output) => match output.accounts {
             Some(accounts_list) => {
                 let config_string = configgen::generate::generate_aws_config(
