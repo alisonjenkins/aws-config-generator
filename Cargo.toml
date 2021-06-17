@@ -10,5 +10,6 @@ edition = "2018"
 dirs = "3.0"
 rusoto_core = { version = "0.46.0", default_features = false, features = ["rustls"] }
 rusoto_organizations = { version = "0.46.0", default_features = false, features = ["rustls"] }
+rusoto_sts = { version = "0.46.0", default_features = false, features = ["rustls"] }
 tokio = { version = "1.5.0", features = ["full"] }
 toml = "0.5"
