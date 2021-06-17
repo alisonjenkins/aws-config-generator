@@ -1,0 +1,12 @@
+[master-account]
+accountid = '123456789'
+accountname = 'my-master'
+
+[sso_options]
+sso_url = 'https://my-sso.awsapps.com/start'
+sso_region = 'eu-west-2'
+sso_role = 'MyAccess'
+
+[aws_cli_options]
+default_region = "eu-west-2"
+default_output_type = 'json'
