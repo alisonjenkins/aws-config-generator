@@ -39,7 +39,7 @@ mv ~/.aws/config.generated ~/.aws/config
 To build just run: `cargo build` in the project root.
 
 # TODO List
-* Add CLI argument parsing with version flag.
+* Implement verbosity and config path CLI argument code.
 * Setup Github actions to build for various platforms (Linux (x86_64, arm, arm64), Mac OS (x86_64, arm64), Docker containers).
 * Finish implementing asdf plugin: [asdf-aws-config-generator](https://github.com/alanjjenkins/asdf-aws-config-generator)
 * Sort the account profiles alphabetically.
