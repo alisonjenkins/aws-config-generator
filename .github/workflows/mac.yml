@@ -37,14 +37,9 @@ jobs:
         run: cargo build --all --release
 
       - name: Archive Release
-        runs-on: ubuntu-latest
-        uses: thedoctor0/zip-release@0.4.2
-        with:
-          filename: 'aws-config-generator-mac-x86_64.zip'
-          path: 'target/release/aws-config-generator'
+        run: zip aws-config-generator-mac-x86_64.zip target/release/aws-config-generator
 
       - name: Upload zip to release
-        uses: svenstaro/upload-release-action@v1-release
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: 'aws-config-generator-mac-x86_64.zip'
