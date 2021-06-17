@@ -39,12 +39,12 @@ async fn main() -> () {
             Ok(output) => {
                 next_token = match output.next_token {
                     Some(token) => Some(token),
-                    None => Some(String::from(""))
+                    None => Some(String::from("")),
                 };
 
                 match output.accounts {
                     Some(mut resp_accounts) => accounts_list.append(&mut resp_accounts),
-                    None => {},
+                    None => {}
                 }
 
                 if next_token.clone().unwrap() == String::from("") {
@@ -53,16 +53,16 @@ async fn main() -> () {
                 } else {
                     println!("There are more organisation account pages... getting the next");
                 }
-    //             match output.accounts {
-    //                 Some(resp_accounts_list) => {
-    // 
-    //                 }
-    // 
-    //                 None => {
-    //                     println!("No accounts in organization"),
-    //                 }
-    //             }
-            },
+                //             match output.accounts {
+                //                 Some(resp_accounts_list) => {
+                //
+                //                 }
+                //
+                //                 None => {
+                //                     println!("No accounts in organization"),
+                //                 }
+                //             }
+            }
             Err(error) => {
                 println!("Error: {:?}", error);
             }

@@ -1,5 +1,5 @@
-use std::io;
 use std::borrow::Borrow;
+use std::io;
 
 use rusoto_organizations::Account;
 

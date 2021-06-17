@@ -14,7 +14,10 @@ fn find_config() -> Result<std::path::PathBuf, &'static str> {
     }
     // *TODO* Implement config file finding code!
     for check_config_path in config_paths {
-        println!("Checking for config at: {}", check_config_path.display().to_string());
+        println!(
+            "Checking for config at: {}",
+            check_config_path.display().to_string()
+        );
         if check_config_path.exists() {
             config_path = std::path::PathBuf::from(check_config_path);
             println!("Found config at: {}", config_path.display().to_string());
