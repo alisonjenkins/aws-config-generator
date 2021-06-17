@@ -26,7 +26,7 @@ jobs:
           override: true
 
       - name: Build for mac
-        run: cargo build --all --release && strip target/release/rust-aha-cli && mv target/release/rust-aha-cli target/release/#{your final bin name here}
+        run: cargo build --all --release && strip target/release/rust-aha-cli && mv target/release/rust-aha-cli target/release/aws-config-generator
 
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v1-release
