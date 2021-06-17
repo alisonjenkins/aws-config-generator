@@ -10,12 +10,14 @@ pub async fn get_args<'a>() -> Result<ArgMatches<'a>, String> {
                           .version("AWS_CONFIG_GENERATOR_VERSION")
                           .author("Alan Jenkins <alan.james.jenkins@gmail.com>")
                           .about("Generates AWS CLI configs for SSO authentication from your AWS Organisations accounts.")
+                          // *TODO* Implement config path option
                           // .arg(Arg::with_name("config")
                           //      .short("c")
                           //      .long("config")
                           //      .value_name("FILE")
                           //      .help("Sets a custom config file")
                           //      .takes_value(true))
+                          // *TODO* Implement verbosity option
                           // .arg(Arg::with_name("v")
                           //      .short("v")
                           //      .multiple(true)
