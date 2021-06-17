@@ -15,6 +15,13 @@ jobs:
             source: ${{ github.ref }}
             find: 'AWS_CONFIG_GENERATOR_VERSION'
             replace: ${{ github.ref }}
+      - name: Cache Rust dependencies
+        uses: actions/cache@v1.0.1
+        with:
+          path: target
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -40,6 +47,13 @@ jobs:
             source: ${{ github.ref }}
             find: 'AWS_CONFIG_GENERATOR_VERSION'
             replace: ${{ github.ref }}
+      - name: Cache Rust dependencies
+        uses: actions/cache@v1.0.1
+        with:
+          path: target
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -68,6 +82,13 @@ jobs:
             source: ${{ github.ref }}
             find: 'AWS_CONFIG_GENERATOR_VERSION'
             replace: ${{ github.ref }}
+      - name: Cache Rust dependencies
+        uses: actions/cache@v1.0.1
+        with:
+          path: target
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
