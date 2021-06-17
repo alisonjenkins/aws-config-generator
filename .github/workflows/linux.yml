@@ -4,13 +4,6 @@ on:
     types: [published, created, edited]
 
 jobs:
-  rustfmt:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - run: rustup component add rustfmt
-      - run: cargo fmt -- --check
-
   build-linux-x86_64:
     name: Linux x86_64
     runs-on: ubuntu-latest
