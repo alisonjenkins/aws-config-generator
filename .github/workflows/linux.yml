@@ -1,7 +1,8 @@
-name: Linux Actions
+name: Linux
 on:
-  tags:
-    - v*
+  release:
+    types: [published, created, edited]
+
 jobs:
   rustfmt:
     runs-on: ubuntu-latest
