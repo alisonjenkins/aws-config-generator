@@ -25,7 +25,7 @@ sso_role_name = MyAccess
 ```
 
 ```
-aws-vault exec master -- aws-config-generator > ~/.aws/config.generated
+aws-vault exec main -- aws-config-generator > ~/.aws/config.generated
 
 # Check config using:
 cat ~/.aws/config.generated
