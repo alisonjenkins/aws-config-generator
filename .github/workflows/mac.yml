@@ -5,6 +5,7 @@ on:
 
 jobs:
   build-mac:
+    name: Mac OS x86_64
     runs-on: macos-latest
 
     steps:
