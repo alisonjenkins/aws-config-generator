@@ -35,10 +35,7 @@ jobs:
           args: --release --all-features
 
       - name: Archive Release
-        uses: thedoctor0/zip-release@0.4.2
-        with:
-          filename: 'aws-config-generator-linux-x86_64.zip'
-          path: 'target/release/aws-config-generator'
+        run: zip --junk-paths aws-config-generator-linux-x86_64.zip target/release/aws-config-generator config.toml.example
 
       - name: Upload zip to release
         uses: svenstaro/upload-release-action@v1-release

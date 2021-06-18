@@ -38,7 +38,7 @@ jobs:
         run: cargo build --all --release
 
       - name: Archive Release
-        run: cd target/release/ && zip aws-config-generator-mac-x86_64.zip aws-config-generator
+        run: zip --junk-paths aws-config-generator-mac-x86_64.zip target/release/aws-config-generator config.toml.example
 
       - name: Upload zip to release
         uses: svenstaro/upload-release-action@v1-release
