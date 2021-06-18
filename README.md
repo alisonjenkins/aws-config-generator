@@ -39,12 +39,14 @@ mv ~/.aws/config.generated ~/.aws/config
 To build just run: `cargo build` in the project root.
 
 # TODO List
-* Implement verbosity and config path CLI argument code.
-* Setup Github actions to build for various platforms (Linux (x86_64, arm, arm64), Mac OS (x86_64, arm64), Docker containers).
+* Implement verbosity, config path and output path CLI argument code.
+* Setup Github actions to build for various platforms (Linux (arm, arm64), Mac OS (arm64), Docker containers).
 * Finish implementing asdf plugin: [asdf-aws-config-generator](https://github.com/alanjjenkins/asdf-aws-config-generator)
+* Create tests and document code.
+* Setup dependabot to create automatic PRs when dependencies are updated (needs automated tests first).
 * Sort the account profiles alphabetically.
 * Allow setting the profile name for the organisation main account.
 * Update the code to query what role the user has assigned to them for each account and if not assigned a role do not generate a profile for that account.
 * Profile name aliases overrides (allow overriding the names to generate the account profiles with).
-* Create tests and document code.
+* Allow setting multiple master account profile names to iterate over for companies that have multiple Organisations.
 * Migrate to the official AWS Rust SDK when it comes out of alpha.
