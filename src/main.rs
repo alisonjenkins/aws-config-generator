@@ -11,8 +11,6 @@ async fn main() -> () {
     let _args = configgen::arg_parsing::get_args().await;
     let config = configgen::config::get_config();
 
-    println!("{:?}", config);
-
     let org_client = OrganizationsClient::new(Region::default());
 
     let sts_client = StsClient::new(Region::default());
@@ -31,7 +29,6 @@ async fn main() -> () {
     let mut next_token: Option<String> = Some("".to_string());
     loop {
         let mut list_accounts_input: ListAccountsRequest = Default::default();
-        println!("Next token is: '{}'\n", next_token.clone().unwrap());
         if next_token.clone().unwrap() != String::from("") {
             list_accounts_input.next_token = next_token.clone();
         }
@@ -49,23 +46,12 @@ async fn main() -> () {
                 }
 
                 if next_token.clone().unwrap() == String::from("") {
-                    println!("No more organisation account pages.");
                     break;
-                } else {
-                    println!("There are more organisation account pages... getting the next");
                 }
-                //             match output.accounts {
-                //                 Some(resp_accounts_list) => {
-                //
-                //                 }
-                //
-                //                 None => {
-                //                     println!("No accounts in organization"),
-                //                 }
-                //             }
             }
             Err(error) => {
-                println!("Error: {:?}", error);
+                eprintln!("Error listing accounts: {:?}", error);
+                std::process::exit(1);
             }
         }
     }
