@@ -6,7 +6,7 @@ This tool was created to ensure that we can easily create the configurations for
 
 
 # TODO List
-* Figure out why the syn-master account is not part of the list and if not returned by the organisation API have it automatically added to the config.
-* Update the code to query what role the user has assigned to them for each account and if not assigned a role do not generate a profile for that account.
 * Sorting of the profiles alphabetically by name.
+* Figure out why the syn-master account is not part of the list and if not returned by the organisation API have it automatically added to the config.
+* Update the code to query what permission set the user has assigned to them for each account and if not assigned a permission set do not generate a profile for that account.
 * Profile name aliases (allow providing alternative names to generate the config profiles with (some are not named in a nice way e.g. ci/cd.
