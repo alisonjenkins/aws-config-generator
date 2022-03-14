@@ -1,12 +1,12 @@
 use clap::{
-    App,
     // SubCommand
     // Arg,
     ArgMatches,
+    Command,
 };
 
-pub async fn get_args<'a>() -> Result<ArgMatches<'a>, String> {
-    let matches = App::new("aws-config-generator")
+pub async fn get_args() -> Result<ArgMatches, String> {
+    let matches = Command::new("aws-config-generator")
                           .version("AWS_CONFIG_GENERATOR_VERSION")
                           .author("Alan Jenkins <alan.james.jenkins@gmail.com>")
                           .about("Generates AWS CLI configs for SSO authentication from your AWS Organisations accounts.")

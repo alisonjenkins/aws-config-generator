@@ -2,15 +2,17 @@
 name = "aws-config-generator"
 version = "0.1.0"
 authors = ["Alan Jenkins <alan.james.jenkins@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = "2.33.0"
-dirs = "3.0"
-rusoto_core = { version = "0.46.0", default_features = false, features = ["rustls"] }
-rusoto_organizations = { version = "0.46.0", default_features = false, features = ["rustls"] }
-rusoto_sts = { version = "0.46.0", default_features = false, features = ["rustls"] }
-tokio = { version = "1.5.0", features = ["full"] }
+aws-config = "0.8"
+aws-sdk-organizations = "0.8"
+aws-sdk-sts = "0.8"
+clap = "3.1"
+dirs = "4.0"
+futures-util = "0.3"
+tokio = { version = "1.17", features = ["full"] }
+tokio-stream = "0.1.8"
 toml = "0.5"

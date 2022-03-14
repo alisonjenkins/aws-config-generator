@@ -1,63 +1,30 @@
-use std::default::Default;
-
-use rusoto_core::Region;
-use rusoto_organizations::{Account, ListAccountsRequest, Organizations, OrganizationsClient};
-use rusoto_sts::{GetCallerIdentityRequest, Sts, StsClient};
-
 mod configgen;
 
+use futures_util::stream::StreamExt;
+
 #[tokio::main]
-async fn main() -> () {
+async fn main() {
     let _args = configgen::arg_parsing::get_args().await;
     let config = configgen::config::get_config();
+    let awsconfig = aws_config::load_from_env().await;
 
-    let org_client = OrganizationsClient::new(Region::default());
+    let org_client = aws_sdk_organizations::Client::new(&awsconfig);
 
-    let sts_client = StsClient::new(Region::default());
-    let get_caller_identity_input = GetCallerIdentityRequest {};
-    let org_main_account = match Sts::get_caller_identity(&sts_client, get_caller_identity_input)
+    let sts_client = aws_sdk_sts::Client::new(&awsconfig);
+    let org_main_account = sts_client
+        .get_caller_identity()
+        .send()
         .await
-    {
-        Ok(resp) => resp,
-        Err(err) => {
-            eprintln!("STS Get Caller Identity failed: {}\nUnable to identify the organisation's main account.", err);
-            std::process::exit(1);
-        }
-    };
+        .unwrap()
+        .account;
 
-    let mut accounts_list = Vec::<Account>::new();
-    let mut next_token: Option<String> = Some("".to_string());
-    loop {
-        let mut list_accounts_input: ListAccountsRequest = Default::default();
-        if next_token.clone().unwrap() != String::from("") {
-            list_accounts_input.next_token = next_token.clone();
-        }
-
-        match org_client.list_accounts(list_accounts_input).await {
-            Ok(output) => {
-                next_token = match output.next_token {
-                    Some(token) => Some(token),
-                    None => Some(String::from("")),
-                };
-
-                match output.accounts {
-                    Some(mut resp_accounts) => accounts_list.append(&mut resp_accounts),
-                    None => {}
-                }
-
-                if next_token.clone().unwrap() == String::from("") {
-                    break;
-                }
-            }
-            Err(error) => {
-                eprintln!("Error listing accounts: {:?}", error);
-                std::process::exit(1);
-            }
-        }
-    }
+    let accounts_paginator = org_client.list_accounts().into_paginator().send();
+    let accounts = accounts_paginator.collect::<Result<Vec<_>, _>>().await?;
+    // let paginator = client.list_tables().into_paginator().items().send();
+    // let table_names = paginator.collect::<Result<Vec<_>, _>>().await?;
 
     let config_string = configgen::generate::generate_aws_config(
-        &org_main_account.account.unwrap(),
+        &org_main_account.unwrap(),
         config["aws_cli_options"]["default_region"]
             .as_str()
             .unwrap(),
@@ -67,7 +34,7 @@ async fn main() -> () {
         config["sso_options"]["sso_url"].as_str().unwrap(),
         config["sso_options"]["sso_region"].as_str().unwrap(),
         config["sso_options"]["sso_role"].as_str().unwrap(),
-        &accounts_list,
+        &accounts,
     )
     .await;
     println!("{}", config_string.unwrap());
