@@ -1,23 +1,24 @@
-use std::default::Default;
-
-use rusoto_core::Region;
-use rusoto_organizations::{Account, ListAccountsRequest, Organizations, OrganizationsClient};
-use rusoto_sts::{GetCallerIdentityRequest, Sts, StsClient};
+use aws_config::RetryConfig;
 
 use aws_config_generator::configgen;
+use aws_sdk_organizations::model::Account;
 
 #[tokio::main]
 async fn main() -> () {
     let _args = configgen::arg_parsing::get_args().await;
     let config = configgen::config::get_config();
 
-    let org_client = OrganizationsClient::new(Region::default());
+    let shared_config = aws_config::load_from_env().await;
+    let org_config = aws_sdk_organizations::config::Builder::from(&shared_config)
+        .retry_config(RetryConfig::disabled())
+        .build();
+    let sts_config = aws_sdk_sts::config::Builder::from(&shared_config)
+        .retry_config(RetryConfig::disabled())
+        .build();
+    let org_client = aws_sdk_organizations::Client::from_conf(org_config);
+    let sts_client = aws_sdk_sts::Client::from_conf(sts_config);
 
-    let sts_client = StsClient::new(Region::default());
-    let get_caller_identity_input = GetCallerIdentityRequest {};
-    let org_main_account = match Sts::get_caller_identity(&sts_client, get_caller_identity_input)
-        .await
-    {
+    let org_main_account = match sts_client.get_caller_identity().send().await {
         Ok(resp) => resp,
         Err(err) => {
             eprintln!("STS Get Caller Identity failed: {}\nUnable to identify the organisation's main account.", err);
@@ -26,26 +27,23 @@ async fn main() -> () {
     };
 
     let mut accounts_list = Vec::<Account>::new();
-    let mut next_token: Option<String> = Some("".to_string());
+    let mut next_token: Option<String> = None;
     loop {
-        let mut list_accounts_input: ListAccountsRequest = Default::default();
-        if next_token.clone().unwrap() != String::from("") {
-            list_accounts_input.next_token = next_token.clone();
-        }
-
-        match org_client.list_accounts(list_accounts_input).await {
+        match org_client
+            .list_accounts()
+            .set_next_token(next_token)
+            .send()
+            .await
+        {
             Ok(output) => {
-                next_token = match output.next_token {
-                    Some(token) => Some(token),
-                    None => Some(String::from("")),
-                };
+                next_token = output.next_token;
 
                 match output.accounts {
                     Some(mut resp_accounts) => accounts_list.append(&mut resp_accounts),
                     None => {}
                 }
 
-                if next_token.clone().unwrap() == String::from("") {
+                if next_token == None {
                     break;
                 }
             }

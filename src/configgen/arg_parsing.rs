@@ -1,7 +1,4 @@
-use clap::{
-    Command,
-    ArgMatches,
-};
+use clap::{ArgMatches, Command};
 
 pub async fn get_args() -> Result<ArgMatches, String> {
     let matches = Command::new("aws-config-generator")
