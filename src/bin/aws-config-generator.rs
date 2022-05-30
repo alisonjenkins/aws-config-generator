@@ -4,7 +4,7 @@ use rusoto_core::Region;
 use rusoto_organizations::{Account, ListAccountsRequest, Organizations, OrganizationsClient};
 use rusoto_sts::{GetCallerIdentityRequest, Sts, StsClient};
 
-mod configgen;
+use aws_config_generator::configgen;
 
 #[tokio::main]
 async fn main() -> () {

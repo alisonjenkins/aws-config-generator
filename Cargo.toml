@@ -1,8 +1,10 @@
 [package]
-name = "aws-config-generator"
+name = "aws_config_generator"
 version = "0.1.0"
 authors = ["Alan Jenkins <alan.james.jenkins@gmail.com>"]
 edition = "2018"
+
+[lib]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
