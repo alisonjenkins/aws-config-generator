@@ -1,7 +1,7 @@
 use aws_config::RetryConfig;
 
 use aws_config_generator::configgen;
-use aws_sdk_organizations::model::Account;
+use std::collections::BTreeMap;
 
 #[tokio::main]
 async fn main() -> () {
@@ -26,7 +26,7 @@ async fn main() -> () {
         }
     };
 
-    let mut accounts_list = Vec::<Account>::new();
+    let mut accounts_list = BTreeMap::new();
     let mut next_token: Option<String> = None;
     loop {
         match org_client
@@ -39,7 +39,20 @@ async fn main() -> () {
                 next_token = output.next_token;
 
                 match output.accounts {
-                    Some(mut resp_accounts) => accounts_list.append(&mut resp_accounts),
+                    Some(mut resp_accounts) => {
+                        for account in resp_accounts.iter_mut() {
+                            // if account.id == org_main_account.account {
+                            //     account.name = config.org_name.clone();
+                            // }
+                            accounts_list.insert(
+                                account
+                                    .name
+                                    .clone()
+                                    .expect("Account missing name, accounts need to be named"),
+                                account.clone(),
+                            );
+                        }
+                    }
                     None => {}
                 }
 

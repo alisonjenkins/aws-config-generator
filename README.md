@@ -39,7 +39,6 @@ mv ~/.aws/config.generated ~/.aws/config
 To build just run: `cargo build` in the project root.
 
 # TODO List
-* Sort the account profiles alphabetically.
 * Setup Github actions to build for various platforms (Linux (arm, arm64), Mac OS (arm64), Docker containers).
 * Allow setting the profile name for the organisation main account.
 * Implement verbosity, config path and output path CLI argument code.
