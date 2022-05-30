@@ -2,6 +2,7 @@ use std::borrow::Borrow;
 use std::io;
 
 use aws_sdk_organizations::model::Account;
+use std::collections::BTreeMap;
 
 pub async fn generate_aws_config(
     org_main_account: &String,
@@ -10,7 +11,7 @@ pub async fn generate_aws_config(
     sso_start_url: &str,
     sso_region: &str,
     sso_role_name: &str,
-    accounts_list: &Vec<Account>,
+    accounts_list: &BTreeMap<String, Account>,
 ) -> io::Result<String> {
     let mut config_string: String = format!(
         "[default]\nregion={}\noutput={}\n\n[profile main]\nsso_start_url = {}\nsso_region = {}\nregion = {}\noutput = {}\nsso_account_id = {}\nsso_role_name = {}\n\n",
@@ -24,11 +25,11 @@ pub async fn generate_aws_config(
         sso_role_name
     );
 
-    for account in accounts_list {
+    for account in accounts_list.keys().into_iter() {
         let mut account_name: String;
         let account_id: &String;
 
-        match &account.name {
+        match &accounts_list[account].name {
             Some(name) => {
                 account_name = name.clone();
                 account_name = account_name.replace(" ", "-").to_lowercase();
@@ -39,7 +40,7 @@ pub async fn generate_aws_config(
             }
         }
 
-        match &account.id {
+        match &accounts_list[account].id {
             Some(id) => account_id = &id.borrow(),
             None => {
                 eprintln!("No account ID!");
