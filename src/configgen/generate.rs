@@ -1,7 +1,7 @@
 use std::borrow::Borrow;
 use std::io;
 
-use rusoto_organizations::Account;
+use aws_sdk_organizations::model::Account;
 
 pub async fn generate_aws_config(
     org_main_account: &String,
