@@ -49,4 +49,3 @@ To build just run: `cargo build` in the project root.
 * Update the code to query what permission set the user has assigned to them for each account and if not assigned a permission set do not generate a profile for that account.
 * Profile name aliases overrides (allow overriding the names to generate the account profiles with).
 * Allow setting multiple master account profile names to iterate over for companies that have multiple Organisations.
-* Migrate to the official AWS Rust SDK when it comes out of alpha.
