@@ -66,6 +66,20 @@ async fn main() -> () {
 
     let aws_cli_options = config.get("aws_cli_options").expect("aws_cli_options configuration section not found. Please see the example config and the README.md for instructions on how to configure this tool.");
     let sso_options = config.get("sso_options").expect("sso_options configuration section not found. Please see the example config and the README.md for instructions on how to configure this tool.");
+    println!("{:?}", config);
+    let name_by_account_name_tags: bool = match config.get("config") {
+        Some(config_settings) => match config_settings.get("name_by_account_name_tags") {
+            Some(should) => match should.as_bool() {
+                Some(should) => should,
+                None => {
+                    eprintln!("Error: name_by_account_name_tags must be a boolean value.");
+                    std::process::exit(1);
+                }
+            },
+            None => false,
+        },
+        None => false,
+    };
 
     let config_string = configgen::generate::generate_aws_config(
         &org_main_account.account.unwrap(),
@@ -96,6 +110,8 @@ async fn main() -> () {
             .expect("failed to convert sso_options.sso_role to a &str"),
         &accounts_list,
         &config,
+        name_by_account_name_tags,
+        org_client,
     )
     .await;
     println!(
