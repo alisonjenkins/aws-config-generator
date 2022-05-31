@@ -66,7 +66,6 @@ pub async fn generate_aws_config(
         sso_role_name
     );
 
-
     let tera = match Tera::new("templates/**/*") {
         Ok(t) => t,
         Err(e) => {
@@ -123,7 +122,17 @@ pub async fn generate_aws_config(
         context.insert("sso_region", &sso_region);
         context.insert("sso_start_url", &sso_start_url);
         context.insert("sso_role_name", &sso_role_name);
-        config_string = config_string + &tera.render(&profile_template, &context).expect(format!("Unable to render account profile template for account: {}", account_id).as_str()).as_str();
+        config_string = config_string
+            + &tera
+                .render(&profile_template, &context)
+                .expect(
+                    format!(
+                        "Unable to render account profile template for account: {}",
+                        account_id
+                    )
+                    .as_str(),
+                )
+                .as_str();
     }
 
     Ok(config_string)

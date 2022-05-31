@@ -82,7 +82,10 @@ async fn main() -> () {
 
     let profile_template: String = match config.get("config") {
         Some(config_settings) => match config_settings.get("profile_template") {
-            Some(template) => template.as_str().expect("Unable to read the profile_template config option as a string").to_string(),
+            Some(template) => template
+                .as_str()
+                .expect("Unable to read the profile_template config option as a string")
+                .to_string(),
             None => "basic_profile.txt".to_string(),
         },
         None => "basic_profile.txt".to_string(),
