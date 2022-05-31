@@ -21,7 +21,7 @@ async fn main() -> () {
     let org_main_account = match sts_client.get_caller_identity().send().await {
         Ok(resp) => resp,
         Err(err) => {
-            eprintln!("STS Get Caller Identity failed: {}\nUnable to identify the organisation's main account.", err);
+            eprintln!("Error: STS Get Caller Identity failed: {}\nUnable to identify the organisation's main account.", err);
             std::process::exit(1);
         }
     };
@@ -41,9 +41,6 @@ async fn main() -> () {
                 match output.accounts {
                     Some(mut resp_accounts) => {
                         for account in resp_accounts.iter_mut() {
-                            // if account.id == org_main_account.account {
-                            //     account.name = config.org_name.clone();
-                            // }
                             accounts_list.insert(
                                 account
                                     .name
@@ -67,20 +64,43 @@ async fn main() -> () {
         }
     }
 
+    let aws_cli_options = config.get("aws_cli_options").expect("aws_cli_options configuration section not found. Please see the example config and the README.md for instructions on how to configure this tool.");
+    let sso_options = config.get("sso_options").expect("sso_options configuration section not found. Please see the example config and the README.md for instructions on how to configure this tool.");
+
     let config_string = configgen::generate::generate_aws_config(
         &org_main_account.account.unwrap(),
-        config["aws_cli_options"]["default_region"]
+        aws_cli_options
+            .get("default_region")
+            .expect("aws_cli_options.default_region configuration file entry is missing")
             .as_str()
-            .unwrap(),
-        config["aws_cli_options"]["default_output_type"]
+            .expect("failed to convert aws_cli_options.default_region to a &str"),
+        aws_cli_options
+            .get("default_output_type")
+            .expect("aws_cli_options.default_output_type configuration option is missing")
             .as_str()
-            .unwrap(),
-        config["sso_options"]["sso_url"].as_str().unwrap(),
-        config["sso_options"]["sso_region"].as_str().unwrap(),
-        config["sso_options"]["sso_role"].as_str().unwrap(),
+            .expect("failed to convert aws_cli_options.default_output_type to a &str"),
+        sso_options
+            .get("sso_url")
+            .expect("sso_options.sso_url configuration file entry is missing.")
+            .as_str()
+            .expect("failed to convert sso_options.sso_url configuration file entry to a &str"),
+        sso_options
+            .get("sso_region")
+            .expect("sso_options.sso_region configuration file entry is missing")
+            .as_str()
+            .expect("failed to convert sso_options.sso_region to a &str"),
+        sso_options
+            .get("sso_role")
+            .expect("sso_options.sso_role configuration file entry is missing")
+            .as_str()
+            .expect("failed to convert sso_options.sso_role to a &str"),
         &accounts_list,
+        &config,
     )
     .await;
-    println!("{}", config_string.unwrap());
+    println!(
+        "{}",
+        config_string.expect("Failed to generate config string")
+    );
     ()
 }
