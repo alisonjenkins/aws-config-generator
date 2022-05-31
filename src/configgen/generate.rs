@@ -1,7 +1,7 @@
-use std::io;
-
 use aws_sdk_organizations::model::Account;
 use std::collections::BTreeMap;
+use std::io;
+use tera::{Context, Tera};
 
 async fn get_account_name_tag(
     org_client: &aws_sdk_organizations::Client,
@@ -65,6 +65,15 @@ pub async fn generate_aws_config(
         sso_role_name
     );
 
+
+    let tera = match Tera::new("templates/**/*") {
+        Ok(t) => t,
+        Err(e) => {
+            println!("Error parsing template(s): {}", e);
+            ::std::process::exit(1);
+        }
+    };
+
     for account in accounts_list.keys().into_iter() {
         let account_id = match &accounts_list[account].id {
             Some(id) => id,
@@ -105,16 +114,15 @@ pub async fn generate_aws_config(
             account_name.unwrap()
         };
 
-        config_string = config_string + &format!(
-            "[profile {}]\nsso_start_url = {}\nsso_region = {}\nregion = {}\noutput = {}\nsso_account_id = {}\nsso_role_name = {}\n\n",
-            &account_name,
-            &sso_start_url,
-            &sso_region,
-            &default_region,
-            &default_output_type,
-            &account_id,
-            &sso_role_name
-        );
+        let mut context = Context::new();
+        context.insert("account_id", &account_id);
+        context.insert("account_name", &account_name);
+        context.insert("output", &default_output_type);
+        context.insert("region", &default_region);
+        context.insert("sso_region", &sso_region);
+        context.insert("sso_start_url", &sso_start_url);
+        context.insert("sso_role_name", &sso_role_name);
+        config_string = config_string + &tera.render("basic_profile.txt", &context).expect(format!("Unable to render account profile template for account: {}", account_id).as_str()).as_str();
     }
 
     Ok(config_string)

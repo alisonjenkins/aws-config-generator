@@ -66,7 +66,6 @@ async fn main() -> () {
 
     let aws_cli_options = config.get("aws_cli_options").expect("aws_cli_options configuration section not found. Please see the example config and the README.md for instructions on how to configure this tool.");
     let sso_options = config.get("sso_options").expect("sso_options configuration section not found. Please see the example config and the README.md for instructions on how to configure this tool.");
-    println!("{:?}", config);
     let name_by_account_name_tags: bool = match config.get("config") {
         Some(config_settings) => match config_settings.get("name_by_account_name_tags") {
             Some(should) => match should.as_bool() {
