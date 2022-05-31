@@ -80,6 +80,14 @@ async fn main() -> () {
         None => false,
     };
 
+    let profile_template: String = match config.get("config") {
+        Some(config_settings) => match config_settings.get("profile_template") {
+            Some(template) => template.as_str().expect("Unable to read the profile_template config option as a string").to_string(),
+            None => "basic_profile.txt".to_string(),
+        },
+        None => "basic_profile.txt".to_string(),
+    };
+
     let config_string = configgen::generate::generate_aws_config(
         &org_main_account.account.unwrap(),
         aws_cli_options
@@ -111,6 +119,7 @@ async fn main() -> () {
         &config,
         name_by_account_name_tags,
         org_client,
+        profile_template,
     )
     .await;
     println!(
