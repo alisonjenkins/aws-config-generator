@@ -3,6 +3,26 @@ use std::io;
 use aws_sdk_organizations::model::Account;
 use std::collections::BTreeMap;
 
+async fn get_account_name_tag(
+    org_client: &aws_sdk_organizations::Client,
+    account_id: &str,
+) -> Option<String> {
+    match org_client
+        .list_tags_for_resource()
+        .resource_id(account_id)
+        .send()
+        .await
+        .expect(format!("Failed to list tags for account {account_id}").as_str())
+        .tags
+    {
+        Some(tags) => tags
+            .iter()
+            .find(|&tag| tag.key.as_ref().unwrap() == &String::from("Name"))
+            .map(|tag| tag.value.as_ref().unwrap().clone()),
+        None => None,
+    }
+}
+
 pub async fn generate_aws_config(
     org_main_account: &String,
     default_region: &str,
@@ -12,13 +32,24 @@ pub async fn generate_aws_config(
     sso_role_name: &str,
     accounts_list: &BTreeMap<String, Account>,
     config_data: &toml::Value,
+    name_by_account_name_tags: bool,
+    org_client: aws_sdk_organizations::Client,
 ) -> io::Result<String> {
     let master_account_name = match config_data.get("account_name_overrides") {
         Some(overrides) => match overrides.get(&org_main_account) {
             Some(name) => Some(name.as_str().unwrap().to_string()),
             None => None,
         },
-        None => None,
+        None => {
+            if name_by_account_name_tags {
+                match get_account_name_tag(&org_client, &org_main_account).await {
+                    Some(name) => Some(name),
+                    None => None,
+                }
+            } else {
+                None
+            }
+        }
     };
 
     let mut config_string: String = format!(
@@ -43,25 +74,35 @@ pub async fn generate_aws_config(
             }
         };
 
-        let mut account_name = match config_data.get("account_name_overrides") {
+        let account_name = match config_data.get("account_name_overrides") {
             Some(overrides) => match overrides.get(&account_id) {
-                Some(name) => name.as_str().unwrap().to_string(),
-                None => "".to_string(),
+                Some(name) => Some(name.as_str().unwrap().to_string()),
+                None => None,
             },
-            None => String::from(""),
+            None => None,
         };
 
-        if account_name == "" {
+        let account_name = if name_by_account_name_tags && account_name.is_none() {
+            match get_account_name_tag(&org_client, &accounts_list[account].id.as_ref().unwrap())
+                .await
+            {
+                Some(name) => Some(name),
+                None => None,
+            }
+        } else {
+            account_name
+        };
+
+        let account_name = if account_name == None {
             match &accounts_list[account].name {
-                Some(name) => {
-                    account_name = name.clone();
-                    account_name = account_name.replace(" ", "-").to_lowercase();
-                }
+                Some(name) => name.replace(" ", "-").to_lowercase(),
                 None => {
                     eprintln!("No account Name!");
                     std::process::exit(1);
                 }
             }
+        } else {
+            account_name.unwrap()
         };
 
         config_string = config_string + &format!(
