@@ -1,0 +1,8 @@
+[profile {{account_name}}]
+output = {{output}}
+region = {{region}}
+sso_account_id = {{account_id}}
+sso_region = {{sso_region}}
+sso_role_name = {{sso_role_name}}
+sso_start_url = {{sso_start_url}}
+
