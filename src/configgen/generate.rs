@@ -34,6 +34,7 @@ pub async fn generate_aws_config(
     config_data: &toml::Value,
     name_by_account_name_tags: bool,
     org_client: aws_sdk_organizations::Client,
+    profile_template: String,
 ) -> io::Result<String> {
     let master_account_name = match config_data.get("account_name_overrides") {
         Some(overrides) => match overrides.get(&org_main_account) {
@@ -122,7 +123,7 @@ pub async fn generate_aws_config(
         context.insert("sso_region", &sso_region);
         context.insert("sso_start_url", &sso_start_url);
         context.insert("sso_role_name", &sso_role_name);
-        config_string = config_string + &tera.render("basic_profile.txt", &context).expect(format!("Unable to render account profile template for account: {}", account_id).as_str()).as_str();
+        config_string = config_string + &tera.render(&profile_template, &context).expect(format!("Unable to render account profile template for account: {}", account_id).as_str()).as_str();
     }
 
     Ok(config_string)
