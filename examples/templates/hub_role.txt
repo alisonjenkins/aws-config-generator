@@ -1,0 +1,25 @@
+[profile {{account_name}}]
+output = {{output}}
+region = {{region}}
+sso_account_id = {{account_id}}
+sso_region = {{sso_region}}
+sso_role_name = {{sso_role_name}}
+sso_start_url = {{sso_start_url}}
+
+{% if account_id == hub_role_account_id -%}
+[profile {{hub_role_profile}}]
+region = {{region}}
+role_arn = {{hub_role_arn}}
+source_profile = {{account_name}}
+
+{% endif -%}
+[profile {{account_name}}-script]
+credential_process = aws-vault exec {{account_name}} --json
+
+[profile {{account_name}}-terraform]
+external_id = terraform
+output = {{output}}
+region = {{region}}
+role_arn = arn:aws:iam::{{account_id}}:role/terraform
+source_profile = {{hub_role_profile}}
+

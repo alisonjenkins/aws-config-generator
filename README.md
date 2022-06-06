@@ -39,6 +39,7 @@ mv ~/.aws/config.generated ~/.aws/config
 To build just run: `cargo build` in the project root.
 
 # TODO List
+* Rework the Terraform hub role code to allow configuring it from the config file.
 * Implement verbosity, config path and output path CLI argument code.
 * Update the code to query what permission set the user has assigned to them for each account and if not assigned a permission set do not generate a profile for that account.
 * Finish implementing asdf plugin: [asdf-aws-config-generator](https://github.com/alanjjenkins/asdf-aws-config-generator)
