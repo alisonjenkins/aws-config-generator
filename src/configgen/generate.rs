@@ -36,34 +36,9 @@ pub async fn generate_aws_config(
     org_client: aws_sdk_organizations::Client,
     profile_template: String,
 ) -> io::Result<String> {
-    let master_account_name = match config_data.get("account_name_overrides") {
-        Some(overrides) => match overrides.get(&org_main_account) {
-            Some(name) => Some(name.as_str().unwrap().to_string()),
-            None => None,
-        },
-        None => {
-            if name_by_account_name_tags {
-                match get_account_name_tag(&org_client, &org_main_account).await {
-                    Some(name) => Some(name),
-                    None => None,
-                }
-            } else {
-                None
-            }
-        }
-    };
-
-    let mut config_string: String = format!(
-        "[default]\nregion={}\noutput={}\n\n[profile {}]\nsso_start_url = {}\nsso_region = {}\nregion = {}\noutput = {}\nsso_account_id = {}\nsso_role_name = {}\n\n",
-        &default_region,
-        &default_output_type,
-        &master_account_name.unwrap_or("main".to_string()),
-        sso_start_url,
-        sso_region,
-        default_region,
-        default_output_type,
-        org_main_account,
-        sso_role_name
+    let mut config_string = format!(
+        "[default]\nregion={}\noutput={}\n\n",
+        &default_region, &default_output_type
     );
 
     let tera = match Tera::new("templates/**/*") {
@@ -118,10 +93,19 @@ pub async fn generate_aws_config(
         context.insert("account_id", &account_id);
         context.insert("account_name", &account_name);
         context.insert("output", &default_output_type);
+        context.insert("hub_role_profile", "terraform-hub");
+        context.insert("hub_role_account_id", &org_main_account);
+        context.insert(
+            "hub_role_arn",
+            &format!(
+                "arn:aws:iam::{}:role/{}",
+                &org_main_account, &"terraform-hub"
+            ),
+        );
         context.insert("region", &default_region);
         context.insert("sso_region", &sso_region);
-        context.insert("sso_start_url", &sso_start_url);
         context.insert("sso_role_name", &sso_role_name);
+        context.insert("sso_start_url", &sso_start_url);
         config_string = config_string
             + &tera
                 .render(&profile_template, &context)
