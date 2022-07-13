@@ -16,5 +16,5 @@ clap = "3.1"
 dirs = "4.0"
 lazy_static = "1.4.0"
 tera = "1.16.0"
-tokio = { version = "1.19", features = ["full"] }
+tokio = { version = "1.20", features = ["full"] }
 toml = "0.5"
