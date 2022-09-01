@@ -12,7 +12,7 @@ async fn get_account_name_tag(
         .resource_id(account_id)
         .send()
         .await
-        .expect(format!("Failed to list tags for account {account_id}").as_str())
+        .unwrap_or_else(|_| panic!("Failed to list tags for account {account_id}"))
         .tags
     {
         Some(tags) => tags
@@ -49,7 +49,7 @@ pub async fn generate_aws_config(
         }
     };
 
-    for account in accounts_list.keys().into_iter() {
+    for account in accounts_list.keys() {
         let account_id = match &accounts_list[account].id {
             Some(id) => id,
             None => {
@@ -59,27 +59,21 @@ pub async fn generate_aws_config(
         };
 
         let account_name = match config_data.get("account_name_overrides") {
-            Some(overrides) => match overrides.get(&account_id) {
-                Some(name) => Some(name.as_str().unwrap().to_string()),
-                None => None,
-            },
+            Some(overrides) => overrides
+                .get(&account_id)
+                .map(|name| name.as_str().unwrap().to_string()),
             None => None,
         };
 
         let account_name = if name_by_account_name_tags && account_name.is_none() {
-            match get_account_name_tag(&org_client, &accounts_list[account].id.as_ref().unwrap())
-                .await
-            {
-                Some(name) => Some(name),
-                None => None,
-            }
+            get_account_name_tag(&org_client, accounts_list[account].id.as_ref().unwrap()).await
         } else {
             account_name
         };
 
         let account_name = if account_name == None {
             match &accounts_list[account].name {
-                Some(name) => name.replace(" ", "-").to_lowercase(),
+                Some(name) => name.replace(' ', "-").to_lowercase(),
                 None => {
                     eprintln!("No account Name!");
                     std::process::exit(1);
@@ -109,14 +103,12 @@ pub async fn generate_aws_config(
         config_string = config_string
             + &tera
                 .render(&profile_template, &context)
-                .expect(
-                    format!(
+                .unwrap_or_else(|_| {
+                    panic!(
                         "Unable to render account profile template for account: {}",
                         account_id
                     )
-                    .as_str(),
-                )
-                .as_str();
+                });
     }
 
     Ok(config_string)
