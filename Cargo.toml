@@ -10,7 +10,7 @@ edition = "2021"
 
 [dependencies]
 aws-config = "0.48.0"
-aws-sdk-organizations = "0.17.0"
+aws-sdk-organizations = "0.18.0"
 aws-sdk-sts = "0.17.0"
 clap = "3.2"
 dirs = "4.0"
