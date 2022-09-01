@@ -1,10 +1,11 @@
+use anyhow::Result;
 use aws_config::RetryConfig;
 
 use aws_config_generator::configgen;
 use std::collections::BTreeMap;
 
 #[tokio::main]
-async fn main() -> () {
+async fn main() -> Result<()> {
     let _args = configgen::arg_parsing::get_args().await;
     let config = configgen::config::get_config();
 
@@ -129,5 +130,5 @@ async fn main() -> () {
         "{}",
         config_string.expect("Failed to generate config string")
     );
-    ()
+    Ok(())
 }
