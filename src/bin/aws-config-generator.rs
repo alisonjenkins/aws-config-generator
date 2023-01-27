@@ -1,5 +1,5 @@
 use anyhow::Result;
-use aws_config::RetryConfig;
+use aws_config::retry::RetryConfig;
 
 use aws_config_generator::configgen;
 use std::collections::BTreeMap;
