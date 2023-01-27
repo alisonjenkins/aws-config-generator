@@ -39,22 +39,19 @@ async fn main() -> Result<()> {
             Ok(output) => {
                 next_token = output.next_token;
 
-                match output.accounts {
-                    Some(mut resp_accounts) => {
-                        for account in resp_accounts.iter_mut() {
-                            accounts_list.insert(
-                                account
-                                    .name
-                                    .clone()
-                                    .expect("Account missing name, accounts need to be named"),
-                                account.clone(),
-                            );
-                        }
+                if let Some(mut accounts) =  output.accounts {
+                    for account in accounts.iter_mut() {
+                        accounts_list.insert(
+                            account
+                                .name
+                                .clone()
+                                .expect("Account missing name, accounts need to be named"),
+                            account.clone(),
+                        );
                     }
-                    None => {}
                 }
 
-                if next_token == None {
+                if next_token.is_none()  {
                     break;
                 }
             }

@@ -50,17 +50,16 @@ pub async fn generate_aws_config(
     };
 
     for account in accounts_list.keys() {
-        let account_id = match &accounts_list[account].id {
-            Some(id) => id,
-            None => {
-                eprintln!("No account ID!");
-                std::process::exit(1);
-            }
+        let account_id = if let Some(id) = &accounts_list[account].id {
+            id
+        } else {
+            eprintln!("No account ID!");
+            std::process::exit(1);
         };
 
         let account_name = match config_data.get("account_name_overrides") {
             Some(overrides) => overrides
-                .get(&account_id)
+                .get(account_id)
                 .map(|name| name.as_str().unwrap().to_string()),
             None => None,
         };
@@ -71,7 +70,7 @@ pub async fn generate_aws_config(
             account_name
         };
 
-        let account_name = if account_name == None {
+        let account_name = if account_name.is_none() {
             match &accounts_list[account].name {
                 Some(name) => name.replace(' ', "-").to_lowercase(),
                 None => {
