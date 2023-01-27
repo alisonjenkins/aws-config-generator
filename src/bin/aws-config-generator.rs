@@ -39,7 +39,7 @@ async fn main() -> Result<()> {
             Ok(output) => {
                 next_token = output.next_token;
 
-                if let Some(mut accounts) =  output.accounts {
+                if let Some(mut accounts) = output.accounts {
                     for account in accounts.iter_mut() {
                         accounts_list.insert(
                             account
@@ -51,7 +51,7 @@ async fn main() -> Result<()> {
                     }
                 }
 
-                if next_token.is_none()  {
+                if next_token.is_none() {
                     break;
                 }
             }
