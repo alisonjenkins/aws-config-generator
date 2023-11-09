@@ -16,6 +16,6 @@ aws-sdk-sts = "0.35.0"
 clap = "4.0"
 dirs = "4.0"
 lazy_static = "1.4.0"
-tera = "1.17.1"
+tera = "1.19.1"
 tokio = { version = "1.24", features = ["full"] }
 toml = "0.6"
