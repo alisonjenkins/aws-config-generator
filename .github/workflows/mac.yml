@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: mad9000/actions-find-and-replace-string@3
+      - uses: mad9000/actions-find-and-replace-string@5
         with:
             source: ${{ github.ref }}
             find: 'AWS_CONFIG_GENERATOR_VERSION'
