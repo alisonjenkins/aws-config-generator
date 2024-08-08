@@ -1,17 +1,14 @@
-mod configgen;
-
-use color_eyre::{Result, eyre::eyre};
+use aws_config::BehaviorVersion;
+use aws_config_generator::{configgen, configgen::generate::generate_aws_config};
 use aws_sdk_organizations::types::Account;
-use tokio_stream::StreamExt;
-use crate::configgen::generate::generate_aws_config;
+use color_eyre::{eyre::eyre, Result};
 
 async fn get_main_account_id(sts_client: &aws_sdk_sts::Client) -> Result<String> {
-    let caller_identity_output = sts_client
-        .get_caller_identity()
-        .send()
-        .await?;
+    let caller_identity_output = sts_client.get_caller_identity().send().await?;
 
-    caller_identity_output.account.ok_or_else(|| eyre!("Could not get ID for main AWS account"))
+    caller_identity_output
+        .account
+        .ok_or_else(|| eyre!("Could not get ID for main AWS account"))
 }
 
 async fn get_accounts(org_client: &aws_sdk_organizations::Client) -> Result<Vec<Account>> {
@@ -19,9 +16,7 @@ async fn get_accounts(org_client: &aws_sdk_organizations::Client) -> Result<Vec<
     let mut accounts_paginator = org_client.list_accounts().into_paginator().send();
 
     while let Some(accounts_page) = accounts_paginator.next().await {
-        if let Some(accounts) = accounts_page?.accounts() {
-            all_accounts.append(&mut accounts.into());
-        }
+        all_accounts.append(&mut accounts_page?.accounts().into());
     }
 
     Ok(all_accounts)
@@ -32,7 +27,7 @@ async fn main() -> Result<()> {
     color_eyre::install()?;
     let _args = configgen::arg_parsing::get_args().await;
     let config = configgen::config::get_config();
-    let awsconfig = aws_config::load_from_env().await;
+    let awsconfig = aws_config::load_defaults(BehaviorVersion::v2024_03_28()).await;
 
     let org_client = aws_sdk_organizations::Client::new(&awsconfig);
     let sts_client = aws_sdk_sts::Client::new(&awsconfig);
@@ -47,7 +42,7 @@ async fn main() -> Result<()> {
         sso_start_url: config.sso_options.sso_url,
         sso_region: config.sso_options.sso_region,
         sso_role_name: config.sso_options.sso_role,
-        accounts_list: accounts
+        accounts_list: accounts,
     };
 
     let config = generate_aws_config(generate_aws_config_input).await?;
