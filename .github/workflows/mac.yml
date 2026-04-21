@@ -41,7 +41,7 @@ jobs:
         run: zip --junk-paths aws-config-generator-mac-x86_64.zip target/release/aws-config-generator config.toml.example
 
       - name: Upload zip to release
-        uses: svenstaro/upload-release-action@v1-release
+        uses: svenstaro/upload-release-action@1.1.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: 'aws-config-generator-mac-x86_64.zip'
